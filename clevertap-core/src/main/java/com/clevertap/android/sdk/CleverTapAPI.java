@@ -121,7 +121,7 @@ public class CleverTapAPI implements CTInboxActivity.InboxActivityListener {
      */
     @SuppressWarnings("unused")
     public static void changeCredentials(String accountID, String token) {
-        changeCredentials(accountID, token, null);
+        changeCredentials(accountID, token, null, null);
     }
 
     /**
@@ -130,9 +130,16 @@ public class CleverTapAPI implements CTInboxActivity.InboxActivityListener {
      * @param accountID CleverTap Account Id
      * @param token     CleverTap Account Token
      * @param region    Clever Tap Account Region
+     * @param proxy     CleverTap proxy domain url
      */
+
+     @SuppressWarnings("unused")
+    public static void changeCredentials(String accountID, String token, String proxy) {
+        changeCredentials(accountID, token, null, proxy);
+    }
+
     @SuppressWarnings({"unused", "WeakerAccess"})
-    public static void changeCredentials(String accountID, String token, String region) {
+    public static void changeCredentials(String accountID, String token, String region, String proxy) {
         if (defaultConfig != null) {
             Logger.i("CleverTap SDK already initialized with accountID:" + defaultConfig.getAccountId()
                     + " and token:" + defaultConfig.getAccountToken() + ". Cannot change credentials to "
@@ -140,7 +147,7 @@ public class CleverTapAPI implements CTInboxActivity.InboxActivityListener {
             return;
         }
 
-        ManifestInfo.changeCredentials(accountID, token, region);
+        ManifestInfo.changeCredentials(accountID, token, region, proxy);
     }
 
     /**
@@ -1394,6 +1401,11 @@ public class CleverTapAPI implements CTInboxActivity.InboxActivityListener {
 
     }
 
+        private String getProxyDomain() {
+        return config.getProxyDomain();
+    }
+
+
     //Util
 
     /**
@@ -2641,6 +2653,7 @@ public class CleverTapAPI implements CTInboxActivity.InboxActivityListener {
         String accountId = manifest.getAccountId();
         String accountToken = manifest.getAcountToken();
         String accountRegion = manifest.getAccountRegion();
+        String proxyDomain = manifest.getProxyDomain();
         if (accountId == null || accountToken == null) {
             Logger.i(
                     "Account ID or Account token is missing from AndroidManifest.xml, unable to create default instance");
@@ -2650,7 +2663,7 @@ public class CleverTapAPI implements CTInboxActivity.InboxActivityListener {
             Logger.i("Account Region not specified in the AndroidManifest - using default region");
         }
 
-        return CleverTapInstanceConfig.createDefaultInstance(context, accountId, accountToken, accountRegion);
+        return CleverTapInstanceConfig.createDefaultInstance(context, accountId, accountToken, proxyDomain, accountRegion);
 
     }
 

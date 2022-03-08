@@ -82,24 +82,38 @@ public class CleverTapInstanceConfig implements Parcelable {
             Logger.i("CleverTap accountId and accountToken cannot be null");
             return null;
         }
-        return new CleverTapInstanceConfig(context, accountId, accountToken, null, false);
+        return new CleverTapInstanceConfig(context, accountId, accountToken, null, null, false);
     }
 
-    @SuppressWarnings({"unused"})
-    public static CleverTapInstanceConfig createInstance(Context context, @NonNull String accountId,
-            @NonNull String accountToken, String accountRegion) {
+    @SuppressWarnings("unused")
+    public static CleverTapInstanceConfig createInstance(
+            Context context, @NonNull String accountId,
+            @NonNull String accountToken, @NonNull String proxyDomain) {
         //noinspection ConstantConditions
         if (accountId == null || accountToken == null) {
             Logger.i("CleverTap accountId and accountToken cannot be null");
             return null;
         }
-        return new CleverTapInstanceConfig(context, accountId, accountToken, accountRegion, false);
+        return new CleverTapInstanceConfig(context, accountId, accountToken, null, null, false);
+    }
+
+
+    @SuppressWarnings({"unused"})
+    public static CleverTapInstanceConfig createInstance(Context context, @NonNull String accountId,
+            @NonNull String accountToken, @NonNull String proxyDomain, String accountRegion) {
+        //noinspection ConstantConditions
+        if (accountId == null || accountToken == null) {
+            Logger.i("CleverTap accountId and accountToken cannot be null");
+            return null;
+        }
+        return new CleverTapInstanceConfig(context, accountId, accountToken, accountRegion, proxyDomain, false);
     }
 
     CleverTapInstanceConfig(CleverTapInstanceConfig config) {
         this.accountId = config.accountId;
         this.accountToken = config.accountToken;
         this.accountRegion = config.accountRegion;
+        this.proxyDomain = config.proxyDomain;
         this.isDefaultInstance = config.isDefaultInstance;
         this.analyticsOnly = config.analyticsOnly;
         this.personalization = config.personalization;
@@ -118,13 +132,14 @@ public class CleverTapInstanceConfig implements Parcelable {
         this.identityKeys = config.identityKeys;
     }
 
-    private CleverTapInstanceConfig(Context context, String accountId, String accountToken, String accountRegion,
+    private CleverTapInstanceConfig(Context context, String accountId, String accountToken, String accountRegion, String proxyDomain,
             boolean isDefault) {
         this.accountId = accountId;
         this.accountToken = accountToken;
         this.accountRegion = accountRegion;
         this.isDefaultInstance = isDefault;
         this.analyticsOnly = false;
+        this.proxyDomain = proxyDomain;
         this.personalization = true;
         this.debugLevel = CleverTapAPI.LogLevel.INFO.intValue();
         this.logger = new Logger(this.debugLevel);
@@ -160,6 +175,9 @@ public class CleverTapInstanceConfig implements Parcelable {
             }
             if (configJsonObject.has(Constants.KEY_ACCOUNT_REGION)) {
                 this.accountRegion = configJsonObject.getString(Constants.KEY_ACCOUNT_REGION);
+            }
+            if (configJsonObject.has(Constants.KEY_PROXY_DOMAIN)) {
+                this.proxyDomain = configJsonObject.getString(Constants.KEY_PROXY_DOMAIN);
             }
             if (configJsonObject.has(Constants.KEY_ANALYTICS_ONLY)) {
                 this.analyticsOnly = configJsonObject.getBoolean(Constants.KEY_ANALYTICS_ONLY);
@@ -219,6 +237,7 @@ public class CleverTapInstanceConfig implements Parcelable {
         accountId = in.readString();
         accountToken = in.readString();
         accountRegion = in.readString();
+        proxyDomain = in.readString();
         analyticsOnly = in.readByte() != 0x00;
         isDefaultInstance = in.readByte() != 0x00;
         useGoogleAdId = in.readByte() != 0x00;
@@ -251,6 +270,13 @@ public class CleverTapInstanceConfig implements Parcelable {
     public String getAccountId() {
         return accountId;
     }
+    
+    @SuppressWarnings({"unused"})
+    public String getProxyDomain() {
+        return proxyDomain;
+    }
+
+
 
     @SuppressWarnings({"unused"})
     public String getAccountRegion() {
@@ -446,9 +472,10 @@ public class CleverTapInstanceConfig implements Parcelable {
 
     // convenience to construct the internal only default config
     @SuppressWarnings({"unused", "WeakerAccess"})
-    protected static CleverTapInstanceConfig createDefaultInstance(Context context, @NonNull String accountId,
-            @NonNull String accountToken, String accountRegion) {
-        return new CleverTapInstanceConfig(context, accountId, accountToken, accountRegion, true);
+    protected static CleverTapInstanceConfig createDefaultInstance(
+            Context context, @NonNull String accountId, @NonNull String accountToken,
+            @NonNull String proxyDomain, String accountRegion) {
+        return new CleverTapInstanceConfig(context, accountId, accountToken, accountRegion, proxyDomain, true);
     }
 
     // for internal use only!

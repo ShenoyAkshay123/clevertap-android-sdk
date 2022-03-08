@@ -41,6 +41,7 @@ import com.clevertap.android.sdk.task.Task;
 import com.clevertap.android.sdk.validation.ValidationResultStack;
 import com.clevertap.android.sdk.validation.Validator;
 import java.io.BufferedReader;
+import android.text.TextUtils;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -273,7 +274,7 @@ public class NetworkManager extends BaseNetworkManager {
         conn.setRequestProperty("X-CleverTap-Account-ID", config.getAccountId());
         conn.setRequestProperty("X-CleverTap-Token", config.getAccountToken());
         conn.setInstanceFollowRedirects(false);
-        if (config.isSslPinningEnabled()) {
+        if (config.isSslPinningEnabled() && TextUtils.isEmpty(this.config.getProxyDomain())) {
             SSLContext _sslContext = getSSLContext();
             if (_sslContext != null) {
                 conn.setSSLSocketFactory(getPinnedCertsSslSocketfactory(_sslContext));
@@ -338,6 +339,9 @@ public class NetworkManager extends BaseNetworkManager {
         }
 
     }
+    private String getProxyDomain() {
+        return config.getProxyDomain();
+    }
 
     String getEndpoint(final boolean defaultToHandshakeURL, final EventGroup eventGroup) {
         String domain = getDomain(defaultToHandshakeURL, eventGroup);
@@ -353,8 +357,18 @@ public class NetworkManager extends BaseNetworkManager {
             return null;
         }
 
-        String endpoint = "https://" + domain + "?os=Android&t=" + deviceInfo.getSdkVersion();
-        endpoint += "&z=" + accountId;
+        // String endpoint = "https://" + domain + "?os=Android&t=" + deviceInfo.getSdkVersion();
+        // endpoint += "&z=" + accountId;
+
+        //here we redirect to our domain and add this domain as url param
+        final String proxyDomain = getProxyDomain();
+        String endpoint = "https://";
+        if(TextUtils.isEmpty(proxyDomain)) {
+            endpoint += domain + "?os=Android";
+        } else {
+            endpoint += proxyDomain + "?os=Android&rt=" + domain;
+        }
+        endpoint += "&t=" + deviceInfo.getSdkVersion() + "&z=" + accountId;
 
         final boolean needsHandshake = needsHandshakeForDomain(eventGroup);
         // Don't attach ts if its handshake

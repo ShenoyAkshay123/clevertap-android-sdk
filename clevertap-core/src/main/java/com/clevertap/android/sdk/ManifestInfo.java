@@ -16,6 +16,8 @@ public class ManifestInfo {
 
     private static String accountRegion;
 
+    private static String proxyDomain;
+
     private static boolean useADID;
 
     private static boolean appLaunchedDisabled;
@@ -74,6 +76,10 @@ public class ManifestInfo {
         if (accountRegion == null) {
             accountRegion = _getManifestStringValueForKey(metaData, Constants.LABEL_REGION);
         }
+        if(proxyDomain==null) {
+            proxyDomain = _getManifestStringValueForKey(metaData, Constants.LABEL_PROXY_DOMAIN);
+        }
+
         notificationIcon = _getManifestStringValueForKey(metaData, Constants.LABEL_NOTIFICATION_ICON);
         useADID = "1".equals(_getManifestStringValueForKey(metaData, Constants.LABEL_USE_GOOGLE_AD_ID));
         appLaunchedDisabled = "1".equals(_getManifestStringValueForKey(metaData, Constants.LABEL_DISABLE_APP_LAUNCH));
@@ -103,6 +109,10 @@ public class ManifestInfo {
 
     public String getExcludedActivities() {
         return excludedActivitiesForInApps;
+    }
+
+    public String getProxyDomain(){
+        return proxyDomain;
     }
 
     public String getFCMSenderId() {
@@ -172,10 +182,11 @@ public class ManifestInfo {
                 : Constants.NULL_STRING_ARRAY;
     }
 
-    static void changeCredentials(String id, String token, String region) {
+    static void changeCredentials(String id, String token, String region, String proxy) {
         accountId = id;
         accountToken = token;
         accountRegion = region;
+        proxyDomain = proxy;
     }
 
     /**
